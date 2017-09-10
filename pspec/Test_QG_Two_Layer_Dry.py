@@ -20,18 +20,20 @@ diff = diffusion.specDiffusion(Nx,Ny, alpha=0, nu=1e-15, order =  8.);
 p = pSpectral.parSpectral(Nx,Ny);
 inv = inversion.specInv(Nx,Ny);
 
-def dfdt(t,f, args=None):
-
-
-    omega = p.laplacian(f);
-    rhs = -p.jacobian(f,omega) ;
-    out = inv.invLaplacian(rhs);
+def dfdt(t,f1,f2,S, args=None):
+    omega1 = p.laplacian(f1);    # Top
+    rhs1 = -p.jacobian(f1,omega1+S*(f2-f1));
+    omega2 = p.laplacian(f2);    # Bottom 
+    rhs2 = -p.jacobian(f2,omega2+S*(f1-f2));
+	
+    out = inv.invLaplacian(rhs);   # need to recode for inversion
     return out;
 
-def diffusion(dt, f):
+def diffusion(dt, f1, f2):
 
     #omega = p.laplacian(f);
-    out = diff.diffusionFn(dt, f);
+    out1 = diff.diffusionFn(dt, f1);
+    out2 = diff.diffusionFn(dt, f2);
     #print amax(abs(omega - out));
 
     #return inv.invLaplacian(out);
